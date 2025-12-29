@@ -1,0 +1,715 @@
+
+
+
+-- Notes are in 'most recent first' order below (ie 'reverse chronological order').
+
+Space jet interactive animation project 2026.
+
+
+----------------------------------------
+
+- 5L27b -
+
+Previous fully working version: "spaceship 2026a ('ss+ss-noFlare' swap)".
+   Completed 5L26-2354.
+   Has default brown rocket 'spaceship' with engine exhaust flare animation.
+   Also has new 'G' key spaceship swap function to swap to a new 'no flare' model of the brown rocket with no exhaust flare animation (but with 3 frame spritesheet png animation for code compatibility). This fits on-screen movements like going backwards with F/R fwd/rev outer-space thruster like action.
+
+Current fully working is the more complete version: "spaceship 4-way-swap; 5L27-2352 kpe-prj".
+
+Version "spaceship 4-way-swap; 5L27-2352 kpe-prj" was started on base of "kpe project dev-snapshot 5L27-2244". The 4 ship models that the user can swap to with the 'G' key are: 1)spaceship; 2)spaceship_noFlare; 3)xwing; 4)xwing_noFlare.
+   New feature is to add to 'G' spaceship swap new model: 'x-wing-noFlare'.
+   Like with 'spaceship_no-flare', I can leave the rotate & turn-left & turn-right sprites un changed because they are the same as the prior option in the fixed rotation for 'x-wing'.
+   Now that my code ship-swap with texture-property and custom-anim-property is working all around, I only need to update the code for setting properties in the 'G-swaap' switch statement code.
+
+- Add preload 'ss_xwing_no-flare' for 'spaceship; xwing no-flare.png'
+- Add scene_B canvas 'sprite_xwing_no_flare' for above texture and 'visible' off, flip off.
+- Add scene_B canvas 'sprite_xwing_left_no_flare' for same above texture and 'visible' off, flip on.
+- Add scene_B animation 'xwingFly_no-flare' for same above texture. Loop on, frame 0-2, 15fps.
+- Add scene_B animation 'xwingFlyLeft_no-flare' for same above texture. Loop on, frame 0-2, 15fps.
+
+
+ - Update ship type swapping code.
+   *** Update the following:
+              1) 'G-swap' code  <-- upd for future new ship types
+              vv-- below items only need 1 time dev coding and no future changes! --vv
+              2) initialize rotate and turn custom properties near top of create()
+              3) code for left/right rotate
+              4) code for 'T-turn'
+
+     -     -     -     -     -     -     -     -     -     -
+
+The expanded development version is "kpe project dev-snapshot 5L27-2244".
+   It adds a new spaceship model, the star wars x-wing.
+   'G-swap' now rotates between spaceship with flare, no-flare, x-wing, and back around to flare.
+
+The code is working with a few previous glitches all being fixed:
+
+     1) On xwing, rotate and stop & xwing-noFlare shows instead of wxing-rxst1.
+           This is probably the last frame of the rotate, which uses 'noFlare'.
+        - --FIX-- In rotate stop handler replace hard coded anim key with new
+              anim swap object and property:
+              "if (animation.key === 'shipRotate') {" change to:
+              "if (animation.key === this.sprite_ss_rotate.rotatekey) {   // new custom property for ship-type swapping"
+
+        On xwing, rotate then turn leaves a visible sprite that should be hidden.
+        - Same issue as 1)-a?
+
+        On xwing, turn left then rotate - and all rotates start with ss-left,
+           first rotate after turn should use ss-left, the all are ss-right.
+        - Same issue as 1)-a?
+
+        On xwing, turn left then rotate - and stop & move directions are reversed.
+           Then turning right corrects the move direction but get +1 sprite.
+        - Same issue as 1)-a?
+
+        On xwing, turn left then rotate - and stop & xwing-noFlare shows instead of wxing-rxst1.
+           This is probably the last frame of the rotate, which uses 'noFlare'.
+           Doing a turn right now adds xw-right with flare. On move both sprites move.
+        - Same issue as 1)-a?
+
+     2) On 'G' cycle ss,nf,xw,ss and turn always shows xw instead of ss.
+        - --FIX-- In 'G' swap xw2ss code add 6 lines for texture & anim swap back for ss.
+        - See: "kpe 27-2150 fix G xw2ss"
+
+
+
+
+
+
+----------------------------------------
+
+- 5L26d -
+
+Below code tested and works 5L26-2140.
+
+The game starts with 'sprite_spaceship' and its 'spaceship' texture (which is loaded with 'spaceship.png') and 'shipFly' anim on screen.
+   The 'currentShipType' is set to 'spaceship'.
+   'T' turns ship to left and shows 'sprite_ss_left' (with 'flip' on) and its 'spaceship' texture (also loaded with 'spaceship.png') and 'shipFlyLeft' anim.
+
+Pressing 'G' shows the same sprite as was on screen but with the texture and anim swapped to 'spaceship_no-flare' (which is loaded with 'spaceship; no-flare.png') and either 'shipFly_no-Flare' or 'shipFlyLeft_no-Flare' anim to match the previous ship type.
+   This also sets 'currentShipType' to 'spaceship_no-flare'.
+   Pressing 'G' again will show the next ship type. I plan to add the x-wing ship type in the future. Right now it just goes back to what it was before because there are only the two ship types at this point.
+   Values used in code for currentShipType: 'spaceship' 'spaceship_no-flare'
+
+     -     -     -     -     -     -     -     -     -
+
+- 5L26e:  (also see full notes for 5L26e-5L27 in: ***"- spaceship js 2026a 5L26e ship-swap notes.txt"***)
+
+With spritesheet swapping working for spaceship/spaceship_no-flare, next I began adding the new 'spaceship; xwing.png' and 'spaceship_rotate; xwing.png' spritesheets.
+
+ - -DONE- For consistency, rename 'spaceship rotate; xwing.png' to 'spaceship_rotate; xwing.png'.
+
+ - -DONE- In scene_B preload:
+   > Add spritesheets 'spaceship; xwing rxst.png' (as 'spaceship_xwing') and 'spaceship_rotate; xwing.png' (as 'spaceship_rotate_xwing'). Both as type 'spritesheet' and 176x96.
+
+ - -DONE- In scene_B canvas (all 5 sprites at 939x466, visible off):
+   > Add sprites 'sprite_xwing' (visible off) and 'sprite_xwing_left' (visible off, flip on), both with texture 'spaceship_xwing'.
+   > Also add 'sprite_xwing_rotate' (visible off) with texture 'spaceship_rotate_xwing'.
+   > Also add sprites 'sprite_xwing_turn_left' (visible off) and 'sprite_xwing_turn_right' (visible off), both with texture 'spaceship_rotate_xwing'. They will have different animations for left and right but are otherwise setup the same.
+
+ - -DONE- In scene_B animations:
+   > Add 'xwingFly': texture 'spaceship_xwing', frames 0-2, fps 15 loop on.
+   > Add 'xwingFlyLeft': texture 'spaceship_xwing', frames 0-2, fps 15 loop on. (Canvas sprite 'sprite_xwing_left' is flipped left.)
+   > Add 'xwingRotate': texture 'spaceship_rotate_xwing', frames 0-11, fps 5 loop on.
+   > Add 'xwingTurnLeft': texture 'spaceship_rotate_xwing', frames 0-6, fps 5 loop off.
+   > Add 'xwingTurnRight': texture 'spaceship_rotate_xwing', frames 6-11, fps 5 loop off.
+
+ - Made full backup thru this point.
+
+ - Update ship type swapping code.
+   *** Update the following:
+              1) 'G-swap' code  <-- upd for future new ship types
+              vv-- below items only need 1 time dev coding and no future changes! --vv
+              2) initialize rotate and turn custom properties near top of create()
+              3) code for left/right rotate
+              4) code for 'T-turn'
+
+      *** See lengthy detail dev log notes in file:           ***
+      ***    "- spaceship js 2026a 5L26e ship-swap notes.txt" ***
+
+
+
+
+
+
+     -     -     -     -     -     -     -     -     -
+
+"kpe 1615; no_flare 1preload 2sprites 2anims" - project folder with KPE saved draft for adding 'spaceship; no-flare.png' sprite to the spaceship project.
+
+Starter content: "spaceship 2026a kpe-prj.zip"
+
+Refer to info in: "g-ai; spaceship switching; design & code 5L25"
+
+== Changes:
+  - Add spaceship_no_flare preload object to load new asset 'spaceship; no-flare.png'.
+  - Add 2 sprites in scene_B: sprite_spaceship_no_flare, sprite_ss_left_no_flare.
+  - Add 2 animations in scene_B: shipFly_no_flare, shipFlyLeft_no_flare.
+  - Add user input key 'G' and listener for 'key-up' to bottom of scene_B create().
+  - Add text to scene_A for '[G] - Change type of spaceship.'
+
+== Add to create() logic for data setup:
+vvv----------- about line 40 add 1 code line, 3 comment lines
+// At start run default ship looping-animation constantly.
+// User can swap ship types. The sprites below are reused for
+//   all ship types by swapping their texture and animation settings.
+this.sprite_spaceship.play("shipFly");
+this.sprite_ss_left.play("shipFlyLeft");
+this.sprite_spaceship.visible = true;
+this.sprite_ss_left.visible = false;
+this.currentShipType = 'spaceship';  // default start-up ship
+// Values used in code for currentShipType:
+//    'spaceship' 'spaceship_no-flare'
+^^^-----------
+
+== Add create() logic for 'G' key press:
+vvv-----------
+// User input for [G] - Change type of spaceship.
+this.G.on('up', () => {
+    switch (this.currentShipType) {
+    case 'spaceship':
+        this.currentShipType = 'spaceship_no-flare'; // The ship type we are switching to.
+        this.sprite_spaceship.setTexture('spaceship_no-flare');
+        this.sprite_spaceship.play("shipFly_no-flare");
+        this.sprite_ss_left.setTexture('spaceship_no-flare');
+        this.sprite_ss_left.play("shipFlyLeft_no-flare");
+        break;
+    case 'spaceship_no-flare':
+        this.currentShipType = 'spaceship'; // The ship type we are switching to.
+        this.sprite_spaceship.setTexture('spaceship');
+        this.sprite_spaceship.play("shipFly");
+        this.sprite_ss_left.setTexture('spaceship');
+        this.sprite_ss_left.play("shipFlyLeft");
+        break;
+    }
+ });
+// Values used in code for currentShipType:
+//    'spaceship' 'spaceship_no-flare'
+^^^-----------
+
+
+
+----------------------------------------
+
+>> 5L26a:
+
+In update method, optimized code for 'thrust move' and 'D-move' by using spriteGroup for simplicity and reducing trig math to 2x/upd (ie 1 for X and 1 for Y values) instead of 10x/upd (ie 2 * #of_sprites).
+
+Also only do 'thrust move' trig math and moves if speed is not 0.
+
+
+
+
+----------------------------------------
+
+>> 5L24:
+
+Added an alternate default spaceship 3-cell sprite sheet: "spaceship no-flare.png".
+
+Rename this to the default "spaceship.png" when the rocket exhaust flare does not fit the animation intended. Especially for the new move feature for 'F'-forward and 'R'-reverse. No flare may work with 'F' and with 'R' while the default with the exhaust flare may not work with 'R'.
+
+The rotate sprite sheet already has no exhaust flare so can work generally.
+
+In the future, if I make sprite-sheets for other spaceships (for example star wars xwing and tie fighter spaceships) it may be a good idea to start with no-flare versions. I can always add an optional 'fly' sprite-sheet with exhaust flare as an add-on.
+
+
+>> 5L24b:
+
+Also added a new spaceship alternative to the default. The new spaceship is the star wars x-wing space rocket-jet. It has 2 versions of animated rocket exhaust, one full length and on with shorter exhaust but larger xwing. There is also a 'no-flare' version and a 'rotate' sprite-sheet.
+
+The file names are:
+  - 'spaceship rotate; xwing.png'
+  - 'spaceship; xwing no-flare.png'
+  - 'spaceship; xwing rxst.png'
+  - 'spaceship; xwing rxst2.png'
+
+Right now the only way to swap in a 'no-flare' alt, or an entirely new spaceship alt is to replace the run time files 'spaceship.png' and 'spaceship rotate.png' with the version you want to see when you start the game.
+
+In the future I may ask ai to see if I can use the phaser.io js 'load'-sprite function to load the in-code sprite with different '.png' files depending on user input, then add an on-screen text like 'Choose spaceship - Press 1 for brown-spaceship. Press 2 for x-wing spaceship.'.
+
+
+
+
+
+----------------------------------------
+
+>> 5L23:
+
+Added a second 'move' feature. The first move feature is 'D' to move forward at a fixed speed while the 'D' key is held down.
+
+The new move feature is 'F'-forward and 'R'-reverse. This sets a continuous velocity that is updated every frame in the update() section. In the init() section a speed 'object-variable' for each sprite is declared and initialized to 0. As long as speed is 0 the sprite does not move.
+
+In the create() method each press of 'F' adds 50px/frame cumulatively to the speed. Each press of 'R' subtracts 50px/frame cumulatively from the speed.
+
+Also updated the scene_A information panel for the new feature.
+
+
+
+
+----------------------------------------
+
+>> 5L22:
+
+Refactor code from starting base: "spaceship spin FINAL 5L19-2346 kpe-prj.zip". Improve efficiency and readability expandability of original project.
+
+Using Keolot Phaser Editor (kpe) as my project's visual editor.
+
+Updates from from previous version:
+
+
+== Replace left and right turn sprites with animations using the rotate sprite.
+   In kpe, for for animation objects 'shipTurnLeft' and 'shipTurnRight' replace preload object textures 'ss_turn_left' and 'ss_turn_right' with  preload object texture 'spaceship_rotate'.
+   In 'preload' section delete objects ss_turn_left and ss_turn_right.
+   In the scene_B canvas objects list for objects sprite_ss_turn_left and sprite_ss_turn_right, change 'texture' to preload object 'spaceship_rotate'. (NOTE: The T-turn key only worked if the sprites were in the list but it was ok to leave the texture setting blank for the sprites. I set them to spaceship_rotate and that worked also.)
+   In the file browser delete spaceship_turn_left.png and spaceship_turn_right.png.
+
+
+== Remove "spaceship_left.png" and instead use 'right facing' "spaceship.png" mirrored to face left.
+   In kpe scene_B animaitons objects list for shipFlyLeft change 'texture' to preload-list-obj 'spaceship' instead of "spaceship_left".
+   In _B preload-list-objects delete "spaceship_left".
+   In kpe scene_B canvas objects list on sprite_ss_left change 'texture' to preload-list-obj 'spaceship' and in the kpe properties panel for the object check the box for "Flip X".
+   In the project file browser delete the image file "spaceship_left.png".
+
+
+== Remove "Matter.js" physics engine from _B canvas object "sprite_ss_rotate" by un-selecting the box for "physics" in the kpe properties panel.
+   This was put mistakenly and never removed. No physics engine animations are being used.
+
+
+== Delete the preload-list-object 'rocket_launch', which is an unused duplicate preload declaraton of the existing 'audio_flyoff' object.
+
+
+== Remove 'flyoff' and 'return' in-active code and their 'F' and 'R' inactive key bindings.
+
+
+== For kpe scene_B audio-list-objects, I added "kpe_sceneB_audio_bg", and "kpe_sceneB_audio_jet". These point to project preload-list objects "background_audio" and "audio_flyoff".
+   I used ai-gen code in the _B-create()-script and so it did not tie into the kpe audio-list.
+   But then I changed the background audio name to "bgMusic" to match the ai code and used the kpe declaration with it in place of the ai declaration.
+   And did the same with "flyoffSound".
+
+
+== Review all comments in the code and improve or reduce where possible.
+
+
+== Improve 'resize' feature code by using a spriteResizeGroup instead of repeated code for each sprite. See below: "g-ai ref 2".
+
+// g-ai later version of spriteGroup declaration for 'resize' feature. to fix runtime error 5L22.
+// Not compatible with previou spriteGroup for 'W-spin' so make 'spriteResizeGroup'
+//
+this.spriteResizeGroup = this.add.group();
+this.spriteResizeGroup.addMultiple([
+    this.sprite_spaceship,
+    this.sprite_ss_rotate,
+    this.sprite_ss_left,
+    this.sprite_ss_turn_left,
+    this.sprite_ss_turn_right
+]);
+
+this.UP.on('up', () => {
+    const sprites = this.spriteResizeGroup.getChildren(); // all group sprites array
+    if (sprites.length > 0) {
+        this.tweens.add({
+            targets: sprites,
+            scaleX: '*=1.1', // Multiplies current scale by 1.1 (10% increase)
+            scaleY: '*=1.1',
+            duration: 200,
+            ease: 'Sine.inOut'
+        });
+    }
+});
+
+this.DOWN.on('up', () => {
+    const sprites = this.spriteResizeGroup.getChildren(); // all group sprites array
+    if (sprites.length > 0) {
+        this.tweens.add({
+            targets: sprites,
+            scaleX: '*=.9', // Multiplies current scale by .9 (10% decrease)
+            scaleY: '*=.9',
+            duration: 200,
+            ease: 'Sine.inOut'
+        });
+    }
+});
+
+
+
+
+
+
+==================================================
+
+
+==================================================
+--- g-ai ref 2
+__________________________________________________
+
+>>> my ask: The code below is in a sprite group named "spriteGroup". Can I rewrite the code below using "spriteGroup"?
+this.UP.on('up', () => {
+  // listener for arrow-up keypress
+  // increase sprite_spaceship & sprite_ss_rotate x,y scales 10% (animated tween)
+
+  // add to '^' resize to get var watch:
+    // console.log("_B:create ^; this.ss_front_angle = ", this.ss_front_angle);
+    // console.log("_B:create ^; this.ss_front_spin = ", this.ss_front_spin);
+
+  if (this.sprite_spaceship) {
+    const targetScaleX = this.sprite_spaceship.scaleX * 1.1;
+    const targetScaleY = this.sprite_spaceship.scaleY * 1.1;
+    this.tweens.add({
+      targets: this.sprite_spaceship,
+      scaleX: targetScaleX,
+      scaleY: targetScaleY,
+      duration: 200,
+      ease: 'Sine.inOut'
+    });
+  }
+   if (this.sprite_ss_rotate) {
+    const targetScaleX = this.sprite_ss_rotate.scaleX * 1.1;
+    const targetScaleY = this.sprite_ss_rotate.scaleY * 1.1;
+    this.tweens.add({
+      targets: this.sprite_ss_rotate,
+      scaleX: targetScaleX,
+      scaleY: targetScaleY,
+      duration: 200,
+      ease: 'Sine.inOut'
+    });
+  }
+    if (this.sprite_ss_left) {
+    const targetScaleX = this.sprite_ss_left.scaleX * 1.1;
+    const targetScaleY = this.sprite_ss_left.scaleY * 1.1;
+    this.tweens.add({
+      targets: this.sprite_ss_left,
+      scaleX: targetScaleX,
+      scaleY: targetScaleY,
+      duration: 200,
+      ease: 'Sine.inOut'
+    });
+  }
+    if (this.sprite_ss_turn_left) {
+    const targetScaleX = this.sprite_ss_turn_left.scaleX * 1.1;
+    const targetScaleY = this.sprite_ss_turn_left.scaleY * 1.1;
+    this.tweens.add({
+      targets: this.sprite_ss_turn_left,
+      scaleX: targetScaleX,
+      scaleY: targetScaleY,
+      duration: 200,
+      ease: 'Sine.inOut'
+    });
+  }
+    if (this.sprite_ss_turn_right) {
+    const targetScaleX = this.sprite_ss_turn_right.scaleX * 1.1;
+    const targetScaleY = this.sprite_ss_turn_right.scaleY * 1.1;
+    this.tweens.add({
+      targets: this.sprite_ss_turn_right,
+      scaleX: targetScaleX,
+      scaleY: targetScaleY,
+      duration: 200,
+      ease: 'Sine.inOut'
+    });
+  }
+ });
+
+You can significantly simplify this by targeting the entire Group inside the tween. In Phaser 3, if you pass a Group or an array as the targets property, the tween will automatically apply the logic to every member of that group.
+
+Here is the rewritten code using spriteGroup:
+
+vvv------------ javascript
+this.UP.on('up', () => {
+    // Get all children in the group
+    const children = this.spriteGroup.getChildren();
+
+    if (children.length > 0) {
+        // Calculate the target scale based on the first child's current scale
+        const targetScaleX = children[0].scaleX * 1.1;
+        const targetScaleY = children[0].scaleY * 1.1;
+
+        this.tweens.add({
+            targets: children, // Applies tween to every sprite in the group
+            scaleX: targetScaleX,
+            scaleY: targetScaleY,
+            duration: 200,
+            ease: 'Sine.inOut'
+        });
+    }
+});
+
+Why this is better:
+
+Iterative Processing: this.spriteGroup.getChildren() returns an array. The tween engine handles iterating through this array for you.
+
+Scalability: If you add more ship parts (e.g., sprite_ss_engine_glow) to the group later, they will automatically be included in the resizing without needing new code.
+
+Cleanliness: It replaces 20+ lines of repetitive if statements with one block of logic.
+
+Pro-Tip for Mixed Scales:
+
+If the sprites in your group start at different initial scales (e.g., one is 1.0 and one is 0.5), you can use a relative property string to ensure each grows by exactly 10% of its own current size:
+
+vvv------------ javascript
+this.tweens.add({
+    targets: this.spriteGroup.getChildren(),
+    scaleX: '*=1.1', // Multiplies each individual child's scale by 1.1
+    scaleY: '*=1.1',
+    duration: 200,
+    ease: 'Sine.inOut'
+});
+
+
+
+I ran the code and at runtime I got the following error: Uncaught TypeError: this.spriteGroup.getChildren is not a function
+
+The error Uncaught TypeError: this.spriteGroup.getChildren is not a function usually occurs because the variable this.spriteGroup is not actually a Phaser Group.
+
+How to Fix the Error
+
+Ensure you have initialized the group in your create() method before using it:
+
+vvv------javascript
+// In your create() function
+this.spriteGroup = this.add.group();
+
+// Add your existing sprites to this group
+this.spriteGroup.addMultiple([
+    this.sprite_spaceship,
+    this.sprite_ss_rotate,
+    this.sprite_ss_left,
+    this.sprite_ss_turn_left,
+    this.sprite_ss_turn_right
+]);
+
+Rewritten Optimized Code
+Once initialized as a Group, you can use relative scaling ('*=1.1') to increase every sprite's size by 10% from its current scale in a single tween:
+
+vvv------javascript
+this.UP.on('up', () => {
+    // getChildren() returns an array of all sprites in the group
+    const sprites = this.spriteGroup.getChildren();
+
+    if (sprites.length > 0) {
+        this.tweens.add({
+            targets: sprites,
+            scaleX: '*=1.1', // Multiplies current scale by 1.1 (10% increase)
+            scaleY: '*=1.1',
+            duration: 200,
+            ease: 'Sine.inOut'
+        });
+    }
+});
+
+Why use getChildren()?
+
+Mass Targeting: Passing the array from getChildren() to a tween's targets property tells Phaser to apply that animation to every single sprite in the list simultaneously.
+
+Relative Values: Using '*=1.1' is safer than calculating a fixed targetScale. It ensures that if your sprites start at different sizes (e.g., one is 0.5 and another is 1.0), they each grow by 10% of their own size rather than all snapping to the same final scale.
+
+
+
+5 sites
+Best way to apply a method to all elements in a group?
+Mar 22, 2018 — Posted March 23, 2018 (edited) So far I've encountered different options and was wondering if there is any of them tha...
+
+HTML5 Game Devs Forum
+Making objects in group non-interactive - Phaser 3 - Discourse
+Jan 2, 2019 — //this is the line that I don't understand/can't get to work. this.group8.getChildren.setInteractive(false); } snowbill...
+
+Discourse
+
+Animate group - Phaser 3
+Apr 7, 2019 — But no animation plays, the sprites remain with their originally assigned image. hcakar April 8, 2019, 6:59am 2. Hey @f...
+
+Discourse
+
+Show all
+Ask anything
+
+
+
+
+
+
+
+==================================================
+--- g-ai ref 1 (code not used)
+__________________________________________________
+*** Mirror image the spaceship:  -----------------
+--- NONE OF THE G-AI CODE WAS USED ---
+   Instead changing the sprite 'flip-x' property in kpe did the complete job.
+   In the generated code it looks like:
+    this.sprite_ss_left = this.add.sprite(939, 466, 'spaceship');
+    ...
+    this.sprite_ss_left.setFlipX(true);
+
+In my javascript program using the phaser framework, I have an animation of a spaceship with exhaust flames and the front facing right using the code line "this.sprite_spaceship.play("shipFly");". How can I play this animation as a mirrored animation so that the front is facing left.
+
+To play the animation mirrored so the spaceship faces left, set the sprite's flipX property to true.
+vvv------------javascript
+this.sprite_spaceship.setFlipX(true);
+this.sprite_spaceship.play("shipFly");
+
+Key Methods
+setFlipX(true): Flips the sprite horizontally.
+setFlipX(false): Returns the sprite to its original right-facing orientation.
+toggleFlipX(): Useful if you want to switch directions every time a specific event (like a key press) occurs.
+
+If your spaceship needs to change directions frequently based on movement, you can use a conditional check within your update loop:
+vvv------------javascript
+if (velocity.x < 0) {
+    this.sprite_spaceship.setFlipX(true);
+} else if (velocity.x > 0) {
+    this.sprite_spaceship.setFlipX(false);
+}
+
+For more details on sprite manipulation, refer to the Phaser 3 Documentation on GameObjects.
+AI can make mistakes, so double-check responses
+
+How can I create a flip effect on a Phaser 3 sprite by scaling it?
+
+How can I modify the animation to make it play in reverse?
+
+Tell me more about animating sprites in Phaser 3
+
+
+*** How can I modify the animation to make it play in reverse?
+
+To play your animation in reverse in Phaser 3, you can use the built-in playReverse method. This is the most efficient way to achieve the effect without needing to create a separate animation key.
+Standard Reverse Playback
+Replace your current play line with the following to start the animation from the last frame and play backwards to the first:
+javascript
+this.sprite_spaceship.playReverse("shipFly");
+Use code with caution.
+
+Advanced Controls
+Toggle Reverse Mid-Animation: If the animation is already playing and you want to switch its direction instantly, use the reverse() method on the animation state:
+javascript
+this.sprite_spaceship.anims.reverse();
+Use code with caution.
+
+Automatic Back-and-Forth: If you want the exhaust flames to play forward and then backward automatically in a loop, set the yoyo property to true when creating your animation:
+javascript
+this.anims.create({
+    key: 'shipFly',
+    frames: this.anims.generateFrameNumbers('spaceship', { start: 0, end: 5 }),
+    frameRate: 10,
+    repeat: -1,
+    yoyo: true // Plays 0-5 then 5-0
+});
+Use code with caution.
+
+Conditional Direction: You can also use play with a configuration object to set the direction dynamically:
+javascript
+this.sprite_spaceship.play({ key: 'shipFly', reverse: true });
+Use code with caution.
+
+
+This tutorial explains how to listen for animation events, which is helpful if you need to trigger specific logic when a reversed animation reaches its first frame:
+Related video thumbnail
+09:18
+Phaser 3 Mastery: How to Listen and React to Animation ...
+
+
+Scott Westover
+YouTube • Sep 13, 2023
+
+
+
+
+undefined
+undefined
+undefined
+5 sites
+Sprite - Notes of Phaser 3 - GitHub Pages
+Play animation. Play. sprite. play(key); // sprite.play(key, ignoreIfPlaying); key : Animation key string, or animation config. St...
+
+rexrainbow.github.io
+Reverse Texture Atlas Animation? - Phaser 3
+Apr 20, 2020 — If you want to create a separate animation you can use this. anims. generateFrameNames(…). reverse() . 1 Like. Thundro...
+
+Discourse
+
+animation-direction - CSS - MDN Web Docs
+Nov 16, 2025 — The animation plays backwards each cycle. In other words, each time the animation cycles, the animation will reset to ...
+
+MDN Web Docs
+Show all
+
+
+*** How can I create a flip effect on a Phaser 3 sprite by scaling it?
+
+In Phaser 3, you can create a flip effect by setting the sprite's horizontal scale (scaleX) to a negative value. While setFlipX(true) is the modern standard for simple mirroring, using scale allows for more complex "squash and stretch" flipping animations.
+How to Flip Using Scale
+To flip the spaceship so it faces left (mirrored), set its scaleX to -1:
+javascript
+// Flip horizontally by inverting the X scale
+this.sprite_spaceship.setScale(-1, 1);
+
+// To flip and also resize the ship at the same time:
+this.sprite_spaceship.setScale(-2, 2); // Flipped and double size
+Use code with caution.
+
+Important Considerations
+Pivot Point (Origin): Flipping via scale happens around the sprite's origin. If your origin is set to the top-left (0, 0), scaling to -1 will cause the sprite to "jump" to the left of its position. To flip the ship in place, ensure your origin is centered:
+javascript
+this.sprite_spaceship.setOrigin(0.5); // Centers the pivot point
+Use code with caution.
+
+Physics Bodies: If your spaceship has an Arcade Physics body, flipping with setScale(-1) may not automatically flip the hitbox. You might need to manually adjust the body offset or use setFlipX if the hitbox must remain perfectly aligned with the visual.
+Tweening the Flip: You can use scale to create a smooth "card flip" or turning effect by tweening the scaleX from 1 to -1:
+javascript
+this.tweens.add({
+    targets: this.sprite_spaceship,
+    scaleX: -1,
+    duration: 200
+});
+Use code with caution.
+
+
+This tutorial shows how scaling affects a sprite's appearance and how to use the scale property correctly:
+Related video thumbnail
+02:38
+Phaser Beginners Tutorial 4 - How to Scale a Sprite
+
+
+Zenva
+YouTube • May 11, 2015
+
+
+
+
+How can I create a more detailed flipping animation using scale?
+
+How does setFlipX differ from scaling?
+
+Show me how to use tweens to flip a sprite
+
+undefined
+undefined
+undefined
+9 sites
+Phaser Beginners Tutorial 5 - How to Flip a Sprite
+May 10, 2015 — in this lesson I'm going to show you how you can flip an image in either X or Y. basically how can you mirror it so it...
+
+
+YouTube·Zenva
+
+1:56
+Flip the player sprite between the left and the right arrow keys Game ...
+Oct 14, 2021 — so what we are going to do is I'm going to double click on the right and I'm going to set get rid of that set player. ...
+
+
+YouTube·A bit of everything
+
+59s
+Phaser Dev Log 158
+Feb 25, 2018 — To adjust the offset between an objects position and where it eventually ends up on the screen you should now use the ...
+
+Phaser
+
+Show all
+
+
+
+
+*** ToDo:
+  >
+
+
+

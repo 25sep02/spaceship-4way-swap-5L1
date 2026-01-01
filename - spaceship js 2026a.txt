@@ -6,7 +6,31 @@
 Space jet interactive animation project 2026.
 
 
+=== Summary:
+
+When started the app shows a start screen with basic usage info:
+
+    Click logo to start.
+
+    -- In spaceship scene:
+       [G] - Change type of spaceship.
+       [D] = move ahead while held
+       [F,R] = rocket thrust Fwd,Rev
+       [T] = turn to face opposite way
+       [W,S] = spin left, right
+       [up,dn-arrow] = grow, shrink
+       [left,right-arrow] = rotate left, right
+       [spacebar] = rotate stop'
+
+The 4 ship models that the user can swap to with the 'G' key are: 1)spaceship; 2)spaceship_noFlare; 3)xwing; 4)xwing_noFlare.
+
+
 ----------------------------------------
+
+
+>> 5L29: Improved sprite sheets for xwing-rxst and xwing-no-flame using Aseprite-free to get frames right then basic image editor to update the images.
+   Removed xwing-rxst2 because it was just a poor idea that did not look that good.
+
 
 - 5L27b -
 
